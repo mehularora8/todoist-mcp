@@ -3,14 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "todoist-mcp"
+name = "todoist-mcp-server"
 version = "0.1.0"
 description = "MCP Server for Todoist task management"
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [
-    {name = "Your Name", email = "your.email@example.com"},
+    {name = "Mehul Arora", email = "aroramehul8@gmail.com"},
 ]
 keywords = ["mcp", "todoist", "productivity", "task-management"]
 classifiers = [
@@ -32,3 +32,9 @@ Issues = "https://github.com/mehularora8/todoist-mcp/issues"
 
 [project.scripts]
 todoist-mcp = "todoist_mcp.todoist:main"
+
+[dependency-groups]
+dev = [
+    "build>=1.2.2.post1",
+    "twine>=6.1.0",
+]

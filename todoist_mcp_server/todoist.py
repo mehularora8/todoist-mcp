@@ -1,6 +1,6 @@
 from typing import List
 from mcp.server.fastmcp import FastMCP
-from todoist_client import TodoistClient
+from todoist_mcp_server.todoist_client import TodoistClient
 
 mcp = FastMCP("todoist")
 
@@ -38,8 +38,8 @@ async def create_task(content: str, description: str = "", project_name: str = N
     """
     try:
         client = get_client()
+        project_id = None
         
-        # If project_name is provided, convert to project_id
         if project_name:
             project_id = await client.find_project_by_name(project_name)
             if not project_id:

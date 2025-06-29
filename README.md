@@ -1,19 +1,18 @@
 # Todoist MCP Server
 
-Unofficial MCP server for Todoist that allows agents to create, list, and complete tasks in your Todoist account.
+Unofficial MCP server for Todoist that allows agents to create, and list tasks in your Todoist account.
 
 ## Features
 
 - **Create tasks** with descriptions, due dates, priorities, and labels and projects.
 - **List tasks** List completed or uncompleted tasks with filtering by project or Todoist filters. 
-- **Complete tasks** by ID
 
 Works with Claude Desktop, Cursor, and other MCP clients
 
 ## Installation
 
 ```bash
-pip install todoist-mcp
+pip install todoist-mcp-server
 ```
 
 ## Setup
@@ -38,7 +37,7 @@ Add this to your `claude_desktop_config.json` file: `~/Library/Application Suppo
 {
   "mcpServers": {
     "todoist": {
-      "command": "todoist-mcp",
+      "command": "todoist-mcp-server",
       "env": {
         "TODOIST_API_TOKEN": "your-api-token-here"
       }
@@ -59,7 +58,7 @@ Add this to your Cursor settings:
 {
   "mcpServers": {
     "todoist": {
-      "command": "todoist-mcp",
+      "command": "todoist-mcp-server",
       "env": {
         "TODOIST_API_TOKEN": "your-api-token-here"
       }
@@ -71,7 +70,7 @@ Add this to your Cursor settings:
 #### Other MCP Clients
 
 For any MCP-compatible client, use:
-- **Command:** `todoist-mcp`
+- **Command:** `todoist-mcp-server`
 - **Environment Variable:** `TODOIST_API_TOKEN=your-token`
 
 ### 3. Restart Your Client
@@ -92,9 +91,7 @@ Once configured, you can interact with Todoist using natural language:
 - "List all my high priority tasks"
 - "What tasks do I have in my Work project?"
 
-### Completing Tasks
-- "Mark task 12345 as completed"
-- "Complete the grocery shopping task"
+
 
 ## Available Tools
 
@@ -104,36 +101,30 @@ Create a new task in Todoist.
 **Parameters:**
 - `content` (required): Task title/content
 - `description` (optional): Task description
-- `project_id` (optional): Project ID to add task to
+- `project_name` (optional): Project name to add task to
 - `due_string` (optional): Due date in natural language ("tomorrow", "next monday")
-- `priority` (optional): Priority level 1-4 (1=normal, 4=urgent)
+- `priority` (optional): Priority level 1-4 (1=low, 2=medium, 3=high, 4=urgent)
 - `labels` (optional): List of label names
 
-### `list_tasks`
-List tasks from Todoist.
+### `list_active_tasks`
+List active tasks from Todoist.
 
 **Parameters:**
-- `project_id` (optional): Filter by project ID
+- `project_name` (optional): Filter by project name
 - `filter_string` (optional): Todoist filter ("today", "overdue", "p1")
 - `limit` (optional): Maximum number of tasks (default: 50)
-
-### `complete_task`
-Mark a task as completed.
-
-**Parameters:**
-- `task_id` (required): The ID of the task to complete
 
 ## Troubleshooting
 
 ### "Server disconnected" Error
-1. Make sure you've installed the package: `pip install todoist-mcp`
+1. Make sure you've installed the package: `pip install todoist-mcp-server`
 2. Verify your API token is correct
 3. Check that the config file is in the right location
 4. Restart your MCP client completely
 
 ### "Command not found" Error
 - Ensure the package is installed in the same Python environment your MCP client uses
-- Try reinstalling: `pip uninstall todoist-mcp && pip install todoist-mcp`
+- Try reinstalling: `pip uninstall todoist-mcp-server && pip install todoist-mcp-server`
 
 ### API Token Issues
 - Get a fresh token from [Todoist Integrations](https://todoist.com/prefs/integrations)
@@ -145,7 +136,7 @@ Mark a task as completed.
 To contribute or run from source:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/mehularora8/todoist-mcp
 cd todoist-mcp
 pip install -e .
 ```
