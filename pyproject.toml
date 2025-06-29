@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "todoist-mcp-server"
-version = "0.1.1"
+version = "0.1.2"
 description = "MCP Server for Todoist task management"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -31,7 +31,7 @@ Repository = "https://github.com/mehularora8/todoist-mcp"
 Issues = "https://github.com/mehularora8/todoist-mcp/issues"
 
 [project.scripts]
-todoist-mcp = "todoist_mcp_server.todoist:main"
+todoist-mcp-server = "todoist_mcp_server.todoist:main"
 
 [dependency-groups]
 dev = [

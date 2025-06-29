@@ -122,7 +122,31 @@ List active tasks from Todoist.
 3. Check that the config file is in the right location
 4. Restart your MCP client completely
 
-### "Command not found" Error
+### "Command not found" or "ENOENT" Error
+The most common cause is that your MCP client can't find the `todoist-mcp-server` command in its PATH.
+
+**Solution: Use the full path to the command**
+
+1. Find where the command is installed:
+   ```bash
+   which todoist-mcp-server
+   ```
+
+2. Use the full path in your MCP config:
+   ```json
+   {
+     "mcpServers": {
+       "todoist": {
+         "command": "/full/path/to/todoist-mcp-server",
+         "env": {
+           "TODOIST_API_TOKEN": "your-api-token-here"
+         }
+       }
+     }
+   }
+   ```
+
+**Other fixes:**
 - Ensure the package is installed in the same Python environment your MCP client uses
 - Try reinstalling: `pip uninstall todoist-mcp-server && pip install todoist-mcp-server`
 
