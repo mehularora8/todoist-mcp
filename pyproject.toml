@@ -37,4 +37,9 @@ todoist-mcp-server = "todoist_mcp_server.todoist:main"
 dev = [
     "build>=1.2.2.post1",
     "twine>=6.1.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.0.0",
+    "httpx>=0.28.1",
+    "respx>=0.21.0",
 ]
