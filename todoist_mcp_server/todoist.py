@@ -1,6 +1,7 @@
 from typing import List
 from mcp.server.fastmcp import FastMCP
 from todoist_mcp_server.todoist_client import TodoistClient
+from datetime import datetime, timedelta
 
 mcp = FastMCP("todoist")
 
@@ -116,6 +117,65 @@ async def list_active_tasks(project_id: str = None, project_name: str = None,
         
     except Exception as e:
         return {"error": f"Failed to list tasks: {str(e)}"}
+
+
+@mcp.tool()
+async def list_completed_tasks(project_name: str = None, since: str = None, 
+                             until: str = None, limit: int = 30) -> dict:
+    """
+    List completed tasks from Todoist within a timespan. Default is last 24 hours.
+    Prefer not to provide `since` and `until` if you want to pull tasks from the last 24 hours.
+
+    Args:
+        project_name: Filter tasks by project name (optional)
+        since: Start date in ISO format (YYYY-MM-DD) in the user's timezone (optional)
+        until: End date in ISO format (YYYY-MM-DD) in the user's timezone (optional)
+        limit: Maximum number of tasks to return (default 30, max 200)
+    
+    Returns:
+        Dict containing list of completed tasks or error message
+    """
+    try:
+        client = get_client()
+        project_id = None
+        
+        # If project_name is provided, convert to project_id
+        if project_name:
+            project_id = await client.find_project_by_name(project_name)
+            if not project_id:
+                inbox_id = await client.find_project_by_name("Inbox")
+                if not inbox_id:
+                    return {"error": "Something went wrong. Please create the project first."}
+                project_id = inbox_id
+        
+        # If since and until are not provided, set them to the last 24 hours
+        if not since:
+            since = (datetime.now() - timedelta(days=1)).isoformat()
+        if not until:
+            until = datetime.now().isoformat() 
+        
+        result = await client.get_completed_tasks(
+            project_id=project_id,
+            since=since,
+            until=until,
+            limit=limit
+        )
+        
+        if "error" in result:
+            return result
+            
+        # The API returns an object with 'items' containing the tasks
+        tasks = result.get("items", [])
+        
+        return {
+            "success": True,
+            "completed_tasks": tasks,
+            "count": len(tasks),
+            "message": f"Found {len(tasks)} completed tasks"
+        }
+        
+    except Exception as e:
+        return {"error": f"Failed to list completed tasks: {str(e)}"}
 
 
 def main():

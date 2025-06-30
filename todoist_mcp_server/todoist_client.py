@@ -1,6 +1,8 @@
 from typing import List, Dict, Optional
 import httpx
 import os
+from datetime import datetime
+from enum import Enum
 
 class TodoistClient:
     _instance = None
@@ -13,13 +15,21 @@ class TodoistClient:
                 raise ValueError("TODOIST_API_TOKEN environment variable is required")
 
             self.api_token = api_token
-            self.base_url = "https://api.todoist.com/rest/v2"
+            self.base_url = "https://api.todoist.com/api/v1"
             self.headers = {
                 "Authorization": f"Bearer {api_token}",
                 "Content-Type": "application/json"
             }
 
             self._http_client = None
+
+            self.endpoints = Enum("Endpoints", [
+                ('GET_PROJECTS', "projects"), 
+                ('CREATE_TASK', "tasks"), 
+                ('GET_COMPLETED_TASKS', "tasks/completed/by_completion_date"), 
+                ('GET_TASKS', "tasks"),
+                ('COMPLETE_TASK', "tasks/{task_id}/close")
+            ]) # Enum for endpoints
 
             TodoistClient._initialized = True
 
@@ -64,7 +74,7 @@ class TodoistClient:
 
     async def get_projects(self) -> List[Dict]:
         """Get all projects"""
-        result = await self._make_request("GET", "projects")
+        result = await self._make_request("GET", self.endpoints.GET_PROJECTS.value)
         if "error" in result:
             return result
         return result
@@ -81,15 +91,16 @@ class TodoistClient:
                 return project["id"]
         return None
 
-    async def create_task(self, content: str, description: str = "", project_id: str = None, 
+    async def create_task(self, content: str, description: Optional[str] = "", project_id: str = None, 
                          due_string: str = None, priority: int = 1, labels: List[str] = None) -> Dict:
         """Create a new task"""
         data = {
             "content": content,
-            "description": description,
             "priority": priority
         }
-        
+
+        if description:
+            data["description"] = description
         if project_id:
             data["project_id"] = project_id
         if due_string:
@@ -97,7 +108,7 @@ class TodoistClient:
         if labels:
             data["labels"] = labels
             
-        return await self._make_request("POST", "tasks", data)
+        return await self._make_request("POST", self.endpoints.CREATE_TASK.value, data)
 
     async def get_tasks(self, project_id: str = None, filter_string: str = None, limit: int = 50) -> List[Dict]:
         """Get tasks with optional filtering"""
@@ -108,8 +119,33 @@ class TodoistClient:
         if filter_string:
             params["filter"] = filter_string
             
-        return await self._make_request("GET", "tasks", params=params)
+        return await self._make_request("GET", self.endpoints.GET_TASKS.value, params=params)
 
     async def complete_task(self, task_id: str) -> Dict:
         """Mark a task as completed"""
-        return await self._make_request("POST", f"tasks/{task_id}/close")
+        return await self._make_request("POST", self.endpoints.COMPLETE_TASK.value.format(task_id=task_id))
+
+    async def get_completed_tasks(self, project_id: str = None, since: str = None, 
+                                until: str = None, limit: int = 30) -> Dict:
+        """
+        Get completed tasks within a timespan
+        
+        Args:
+            project_id: Filter by project ID (optional)
+            since: Start date in ISO format (YYYY-MM-DD) or datetime string (optional)
+            until: End date in ISO format (YYYY-MM-DD) or datetime string (optional)
+            limit: Maximum number of tasks to return (default 30, max 200)
+            
+        Returns:
+            Dict containing completed tasks or error message
+        """
+        params = {"limit": min(limit, 200)}  # API max is 200
+        
+        if project_id:
+            params["project_id"] = project_id
+        if since:
+            params["since"] = since
+        if until:
+            params["until"] = until
+            
+        return await self._make_request("GET", self.endpoints.GET_COMPLETED_TASKS.value, params=params)
